@@ -42,25 +42,25 @@ public class WordFilterTests
 
     [Test]
     [TestCaseSource(nameof(validTestCases))]
-    public void IsVerify_Should_BeVerify(string expectedSpeechPart, WordSettings settings)
+    public void FilterAvailableByPartSpeech_ShouldIsSuccess_BeVerify(string expectedSpeechPart, WordSettings settings)
     {
         var filter = new WordFilter();
         var wordDetails = new WordDetails(startWordFake, formatedWordFake, expectedSpeechPart);
 
-        var result = filter.IsVerify(wordDetails, settings);
+        var result = filter.FilterAvailableByPartSpeech(wordDetails, settings);
 
-        result.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
     }
 
     [Test]
     [TestCaseSource(nameof(notValidTestCases))]
-    public void IsVerify_Should_BeNotVerify(string expectedSpeechPart, WordSettings settings)
+    public void FilterAvailableByPartSpeech_ShouldIsFail_BeNotVerify(string expectedSpeechPart, WordSettings settings)
     {
         var filter = new WordFilter();
         var wordDetails = new WordDetails(startWordFake, formatedWordFake, expectedSpeechPart);
 
-        var result = filter.IsVerify(wordDetails, settings);
+        var result = filter.FilterAvailableByPartSpeech(wordDetails, settings);
 
-        result.Should().BeFalse();
+        result.IsFail.Should().BeTrue();
     }
 }

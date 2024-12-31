@@ -25,15 +25,13 @@ public partial class LayouterTests
 
     [Test]
     [TestCaseSource(nameof(zeroSizeCases))]
-    public void PutNextRectangle_Should_ThrowsArgumentException(Size rectangleSize)
+    public void PutNextRectangle_ShouldIsFail_WhenErrorSizes(Size rectangleSize)
     {
         var circularCloudLayouter = new Layouter(imageSettingsProvider, rectanglePlacementStrategy);
 
-        var action = () => circularCloudLayouter.PutNextRectangle(rectangleSize);
+        var action = circularCloudLayouter.PutNextRectangle(rectangleSize);
 
-        action.Should()
-            .Throw<ArgumentException>()
-            .WithMessage("Размер ширины и высоты должен быть больше 0.");
+        action.IsFail.Should().BeTrue();
     }
 
     [Test]
@@ -45,7 +43,7 @@ public partial class LayouterTests
         var center = imageSettings.Size.Center();
         var circularCloudLayouter = new Layouter(imageSettingsProvider, rectanglePlacementStrategy);
 
-        var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size)).ToList();
+        var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size).GetValueOrThrow()).ToList();
 
         rectangles.Skip(1).Should().NotContain(r => r.Contains(center));
     }
@@ -57,7 +55,7 @@ public partial class LayouterTests
     {
         var circularCloudLayouter = new Layouter(imageSettingsProvider, rectanglePlacementStrategy);
 
-        var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size)).ToList();
+        var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size).GetValueOrThrow()).ToList();
 
         rectangles.Select(r => r.Size).Should().BeEquivalentTo(sizes);
     }
@@ -70,7 +68,8 @@ public partial class LayouterTests
         var circularCloudLayouter = new Layouter(imageSettingsProvider, rectanglePlacementStrategy);
         var intersectingRectangles = new List<Rectangle>();
 
-        var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size)).ToList();
+        var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size).GetValueOrThrow()).ToList();
+
         foreach (var checkRectangle in rectangles)
         {
             intersectingRectangles.AddRange(rectangles
@@ -88,7 +87,7 @@ public partial class LayouterTests
         var center = imageSettings.Size.Center();
         var circularCloudLayouter = new Layouter(imageSettingsProvider, rectanglePlacementStrategy);
 
-        var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size));
+        var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size).GetValueOrThrow());
 
         rectangles.First().Center().Should().BeEquivalentTo(center);
     }

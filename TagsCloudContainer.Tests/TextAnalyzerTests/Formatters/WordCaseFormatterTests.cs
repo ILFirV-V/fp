@@ -38,6 +38,6 @@ public class WordCaseFormatterTests
 
         var result = formatter.Format(wordDetails);
 
-        result.Should().BeEquivalentTo(expectedWordDetails);
+        result.GetValueOrThrow().Should().BeEquivalentTo(expectedWordDetails);
     }
 }

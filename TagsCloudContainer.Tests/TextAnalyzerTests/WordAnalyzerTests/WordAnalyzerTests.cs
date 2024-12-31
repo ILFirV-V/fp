@@ -34,19 +34,19 @@ public partial class WordAnalyzerTests
     {
         var analyzer = new WordAnalyzer(myStem);
 
-        var result = analyzer.AnalyzeWordOrNull(word);
+        var result = analyzer.AnalyzeWord(word);
 
-        result.Should().BeEquivalentTo(expectedWordDetails);
+        result.GetValueOrThrow().Should().BeEquivalentTo(expectedWordDetails);
     }
 
     [Test]
     [TestCaseSource(nameof(notValidWordsTestCases))]
-    public void AnalyzeWordOrNull_Should_BeNull(string word)
+    public void AnalyzeWordOrNull_Should_WithError(string word)
     {
         var analyzer = new WordAnalyzer(myStem);
 
-        var result = analyzer.AnalyzeWordOrNull(word);
+        var result = analyzer.AnalyzeWord(word);
 
-        result.Should().BeNull();
+        result.Error.Should().NotBeNull();
     }
 }

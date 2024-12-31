@@ -44,20 +44,18 @@ public class SpiralPlacementStrategyTests
         var points = new List<Point>(sizes.Count);
         var firstRectangleLocation = center - sizes.First() / 2;
 
-        points.AddRange(sizes.Select(size => strategy.GetNextRectangleLocation(size)));
+        points.AddRange(sizes.Select(size => strategy.GetNextRectangleLocation(size).GetValueOrThrow()));
 
         points.First().Should().BeEquivalentTo(firstRectangleLocation);
     }
 
     [Test]
     [TestCaseSource(nameof(zeroSizeCases))]
-    public void PutNextRectangle_Should_ThrowsArgumentException(Size rectangleSize)
+    public void PutNextRectangle_ShouldIsFail_WhenError(Size rectangleSize)
     {
-        var action = () => strategy.GetNextRectangleLocation(rectangleSize);
+        var action = strategy.GetNextRectangleLocation(rectangleSize);
 
-        action.Should()
-            .Throw<ArgumentException>()
-            .WithMessage("Размер ширины и высоты должен быть больше 0.");
+        action.IsFail.Should().BeTrue();
     }
 
     [Test]
@@ -67,7 +65,8 @@ public class SpiralPlacementStrategyTests
         var firstRectangleSize = sizes.First();
         var firstRectangle = new Rectangle(center + firstRectangleSize / 2, firstRectangleSize);
 
-        var rectangleLocations = sizes.Select(size => strategy.GetNextRectangleLocation(size)).ToList();
+        var rectangleLocations =
+            sizes.Select(size => strategy.GetNextRectangleLocation(size).GetValueOrThrow()).ToList();
 
         rectangleLocations.Skip(1).Should().NotContain(r => firstRectangle.Contains(r));
     }

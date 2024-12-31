@@ -17,22 +17,22 @@ public class LayoutCreatorTests
         A.CallTo(() => fakeServiceProvider.GetService(typeof(ILayouter))).Returns(fakeLayouter);
         var layoutCreator = new LayoutCreator(fakeServiceProvider);
 
-        _ = layoutCreator.GetOrNull();
-        _ = layoutCreator.GetOrNull();
+        _ = layoutCreator.GetLayouter();
+        _ = layoutCreator.GetLayouter();
 
         A.CallTo(() => fakeServiceProvider.GetService(typeof(ILayouter)))
             .MustHaveHappenedTwiceExactly();
     }
 
     [Test]
-    public void GetOrNull_ShouldBeNull_WhenLayouterIsNotRegistered()
+    public void GetOrNull_ShouldIsFail_WhenLayouterIsNotRegistered()
     {
         var fakeServiceProvider = A.Fake<IServiceProvider>();
         A.CallTo(() => fakeServiceProvider.GetService(typeof(ILayouter))).Returns(null);
         var layoutCreator = new LayoutCreator(fakeServiceProvider);
 
-        var layouter = layoutCreator.GetOrNull();
+        var layouter = layoutCreator.GetLayouter();
 
-        layouter.Should().BeNull();
+        layouter.IsFail.Should().BeTrue();
     }
 }

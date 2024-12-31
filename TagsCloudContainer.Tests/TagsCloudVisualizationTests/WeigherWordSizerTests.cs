@@ -26,7 +26,7 @@ public partial class WeigherWordSizerTests
 
         var result = calculator.CalculateWordSizes(wordFrequencies);
 
-        result.Should().BeEmpty();
+        result.GetValueOrThrow().Should().BeEmpty();
     }
 
     [Test]
@@ -39,7 +39,7 @@ public partial class WeigherWordSizerTests
 
         var result = calculator.CalculateWordSizes(wordFrequencies);
 
-        var resultWordOrder = result.OrderByDescending(w => w.Font.Size).Select(w => w.Word);
+        var resultWordOrder = result.GetValueOrThrow().OrderByDescending(w => w.Font.Size).Select(w => w.Word);
         resultWordOrder.Should().BeEquivalentTo(expectedWordOrder);
     }
 
@@ -52,7 +52,7 @@ public partial class WeigherWordSizerTests
 
         var result = calculator.CalculateWordSizes(wordFrequencies, minSize, maxSize);
 
-        result.Should().AllSatisfy(x => x.Font.Size.Should().BeInRange(minSize, maxSize));
+        result.GetValueOrThrow().Should().AllSatisfy(x => x.Font.Size.Should().BeInRange(minSize, maxSize));
     }
 
     [Test]
@@ -64,6 +64,6 @@ public partial class WeigherWordSizerTests
 
         var result = calculator.CalculateWordSizes(wordFrequencies, minSize, maxSize);
 
-        result.Max(w => w.Font.Size).Should().Be(maxSize);
+        result.GetValueOrThrow().Max(w => w.Font.Size).Should().Be(maxSize);
     }
 }

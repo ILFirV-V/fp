@@ -34,6 +34,6 @@ public partial class TextPreprocessorTests
     {
         var result = textPreprocessor.GetWordFrequencies(text, settings);
 
-        result.Should().BeEquivalentTo(wordFrequencies);
+        result.GetValueOrThrow().Should().BeEquivalentTo(wordFrequencies);
     }
 }

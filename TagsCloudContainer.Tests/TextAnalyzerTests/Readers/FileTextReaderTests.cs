@@ -17,7 +17,7 @@ public class FileTextReaderTests
         try
         {
             File.WriteAllText(fullPath, expectedText);
-            actualText = reader.ReadText(fullPath);
+            actualText = reader.ReadText(fullPath).GetValueOrThrow();
         }
         finally
         {
@@ -31,12 +31,12 @@ public class FileTextReaderTests
     }
 
     [Test]
-    public void ReadText_ShouldEmptyString_WhenFileDoesNotExist()
+    public void ReadText_ShouldIsFail_WhenFileDoesNotExist()
     {
         var reader = new FileTextReader();
 
         var actualText = reader.ReadText("nonexistent_file.txt");
 
-        actualText.Should().BeEmpty();
+        actualText.IsFail.Should().BeTrue();
     }
 }
