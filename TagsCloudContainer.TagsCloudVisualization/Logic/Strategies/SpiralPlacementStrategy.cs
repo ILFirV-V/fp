@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using TagsCloudContainer.Core;
 using TagsCloudContainer.TagsCloudVisualization.Logic.Strategies.Interfaces;
 
 namespace TagsCloudContainer.TagsCloudVisualization.Logic.Strategies;
@@ -12,16 +13,17 @@ public class SpiralPlacementStrategy : IRectanglePlacementStrategy
     private const int DistanceLayersDifference = 1;
     private const double BetweenAngleDifference = Math.PI / 36;
 
-    public void SetCenterPoint(Point center)
+    public Result<None> SetCenterPoint(Point center)
     {
         this.center = center;
+        return Result.Ok();
     }
 
-    public Point GetNextRectangleLocation(Size rectangleSize)
+    public Result<Point> GetNextRectangleLocation(Size rectangleSize)
     {
         if (rectangleSize.Width == 0 || rectangleSize.Height == 0)
         {
-            throw new ArgumentException("Размер ширины и высоты должен быть больше 0.");
+            return new Error("Размер ширины и высоты должен быть больше 0.");
         }
 
         var shiftFromCenter = -1 * rectangleSize / 2;
@@ -31,8 +33,7 @@ public class SpiralPlacementStrategy : IRectanglePlacementStrategy
             return center + shiftFromCenter;
         }
 
-        var x = center.X + layer * DistanceLayersDifference * Math.Cos(angle);
-        var y = center.Y + layer * DistanceLayersDifference * Math.Sin(angle);
+        var point = CalculateCoordinates(layer, angle);
 
         angle = CalculateNextAngle(angle);
         if (ShouldUpdateLayer(angle))
@@ -41,7 +42,14 @@ public class SpiralPlacementStrategy : IRectanglePlacementStrategy
             angle %= FullCircleTurn;
         }
 
-        return new Point((int) x, (int) y) + shiftFromCenter;
+        return point + shiftFromCenter;
+    }
+
+    private Point CalculateCoordinates(int currentLayer, double currentAngle)
+    {
+        var x = center.X + currentLayer * DistanceLayersDifference * Math.Cos(currentAngle);
+        var y = center.Y + currentLayer * DistanceLayersDifference * Math.Sin(currentAngle);
+        return new Point((int) x, (int) y);
     }
 
     private static double CalculateNextAngle(double oldAngle)

@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using TagsCloudContainer.Core;
+using TagsCloudContainer.Core.Extensions;
 using TagsCloudContainer.TagsCloudVisualization.Extensions;
 using TagsCloudContainer.TagsCloudVisualization.Logic.Layouters.Interfaces;
 using TagsCloudContainer.TagsCloudVisualization.Logic.SizeCalculators.Interfaces;
@@ -11,24 +13,23 @@ namespace TagsCloudContainer.TagsCloudVisualization.Logic.Visualizers;
 public class WordsCloudVisualizer(ILayoutCreator containerCreator, IWeigherWordSizer weigherWordSizer)
     : IWordsCloudVisualizer
 {
-    public void SaveImage(Image image, FileSettings settings)
+    public Result<None> SaveImage(Image image, FileSettings settings)
     {
-        if (!Directory.Exists(settings.OutputPath))
-        {
-            throw new DirectoryNotFoundException($"Output directory doesn't exist: {settings.OutputPath}");
-        }
-
         var fileNameWithFormat = $"{settings.OutputFileName}{settings.ImageFormat.FileExtensionFromToString()}";
         var path = Path.Combine(settings.OutputPath, fileNameWithFormat);
-        image.Save(path, settings.ImageFormat);
+        return Result.OfAction(() => image.Save(path, settings.ImageFormat));
     }
 
-    public Image CreateImage(ImageSettings settings, IReadOnlyDictionary<string, int> wordCounts)
+    public Result<Image> CreateImage(ImageSettings settings, IReadOnlyDictionary<string, int> wordCounts)
     {
-        var viewWords = weigherWordSizer.CalculateWordSizes(wordCounts);
         var bitmap = CreateImageMap(settings);
-        var image = VisualizeWords(bitmap, viewWords, settings);
-        return image;
+        return weigherWordSizer.CalculateWordSizes(wordCounts)
+            .Then(viewWords =>
+            {
+                using var graphics = Graphics.FromImage(bitmap);
+                return VisualizeWords(graphics, viewWords, settings);
+            })
+            .Then(Image (_) => bitmap);
     }
 
     private static Bitmap CreateImageMap(ImageSettings imageSettings)
@@ -39,21 +40,22 @@ public class WordsCloudVisualizer(ILayoutCreator containerCreator, IWeigherWordS
         return bitmap;
     }
 
-    private Bitmap VisualizeWords(Bitmap bitmap, IReadOnlyCollection<ViewWord> viewWords, ImageSettings imageSettings)
+    private Result<None> VisualizeWords(Graphics graphics, IReadOnlyCollection<ViewWord> viewWords,
+        ImageSettings imageSettings)
     {
-        var container = containerCreator.GetOrNull() ?? throw new ArgumentNullException(nameof(containerCreator));
-        using var graphics = Graphics.FromImage(bitmap);
-        foreach (var viewWord in viewWords)
-        {
-            var textSize = CalculateWordSize(graphics, viewWord);
-            var rectangle = container.PutNextRectangle(textSize);
-            DrawTextInRectangle(graphics, viewWord, rectangle, imageSettings);
-        }
-
-        return bitmap;
+        return containerCreator.GetLayouter()
+            .Then(container =>
+            {
+                return viewWords
+                    .Select(viewWord =>
+                        CalculateWordSize(graphics, viewWord)
+                            .Then(container.PutNextRectangle)
+                            .Then(rectangle => DrawTextInRectangle(graphics, viewWord, rectangle, imageSettings)))
+                    .FirstOrDefault(result => result.IsFail);
+            });
     }
 
-    private static Size CalculateWordSize(Graphics graphics, ViewWord viewWord)
+    private static Result<Size> CalculateWordSize(Graphics graphics, ViewWord viewWord)
     {
         var textSize = graphics.MeasureString(viewWord.Word, viewWord.Font);
         var viewWidth = (int) Math.Ceiling(textSize.Width);
@@ -62,7 +64,7 @@ public class WordsCloudVisualizer(ILayoutCreator containerCreator, IWeigherWordS
         return viewSize;
     }
 
-    private static void DrawTextInRectangle(Graphics graphics, ViewWord viewWord, Rectangle rectangle,
+    private static Result<None> DrawTextInRectangle(Graphics graphics, ViewWord viewWord, Rectangle rectangle,
         ImageSettings imageSettings)
     {
         using var stringFormat = new StringFormat();
@@ -70,5 +72,6 @@ public class WordsCloudVisualizer(ILayoutCreator containerCreator, IWeigherWordS
         stringFormat.LineAlignment = StringAlignment.Center;
         using var brush = new SolidBrush(imageSettings.WordColor);
         graphics.DrawString(viewWord.Word, viewWord.Font, brush, rectangle, stringFormat);
+        return Result.Ok();
     }
 }

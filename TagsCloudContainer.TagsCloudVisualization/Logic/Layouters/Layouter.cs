@@ -1,65 +1,87 @@
 ﻿using System.Drawing;
+using TagsCloudContainer.Core;
+using TagsCloudContainer.Core.Extensions;
 using TagsCloudContainer.TagsCloudVisualization.Logic.Layouters.Interfaces;
 using TagsCloudContainer.TagsCloudVisualization.Logic.Strategies.Interfaces;
+using TagsCloudContainer.TagsCloudVisualization.Models.Settings;
 using TagsCloudContainer.TagsCloudVisualization.Providers.Interfaces;
 
 namespace TagsCloudContainer.TagsCloudVisualization.Logic.Layouters;
 
 internal sealed class Layouter : ILayouter
 {
-    private List<Rectangle> Rectangles { get; } = [];
+    private readonly List<Rectangle> rectangles = [];
     private readonly IRectanglePlacementStrategy placementStrategy;
+    private readonly ImageSettings imageSettings;
     private Point Center { get; }
 
     public Layouter(IImageSettingsProvider imageSettingsProvider, IRectanglePlacementStrategy placementStrategy)
     {
-        var imageSettings = imageSettingsProvider.GetImageSettings();
+        imageSettings = imageSettingsProvider.GetImageSettings();
         Center = new Point(imageSettings.Size.Width / 2, imageSettings.Size.Height / 2);
         this.placementStrategy = placementStrategy;
         this.placementStrategy.SetCenterPoint(Center);
     }
 
-    public Rectangle PutNextRectangle(Size rectangleSize)
+    public Result<Rectangle> PutNextRectangle(Size rectangleSize)
     {
-        if (rectangleSize.Width == 0 || rectangleSize.Height == 0)
+        if (rectangleSize.Width <= 0 || rectangleSize.Height <= 0)
         {
-            throw new ArgumentException("Размер ширины и высоты должен быть больше 0.");
+            return new Error("Размер ширины и высоты должен быть больше 0.");
         }
 
-        var rectangle = CreateNewRectangle(rectangleSize);
-        rectangle = RectangleCompressions(rectangle);
-        Rectangles.Add(rectangle);
+        return CreateNewRectangle(rectangleSize)
+            .Then(RectangleCompressions)
+            .Then(ValidateRectangleBounds)
+            .Then(rectangle =>
+            {
+                rectangles.Add(rectangle);
+                return rectangle;
+            });
+    }
+
+    private Result<Rectangle> ValidateRectangleBounds(Rectangle rectangle)
+    {
+        var imageWidth = imageSettings.Size.Width;
+        var imageHeight = imageSettings.Size.Height;
+        if (rectangle.Left < 0 || rectangle.Top < 0 ||
+            rectangle.Right > imageWidth || rectangle.Bottom > imageHeight)
+        {
+            return new Error("Прямоугольник выходит за границы изображения.");
+        }
+
         return rectangle;
     }
 
-    private Rectangle CreateNewRectangle(Size rectangleSize)
+    private Result<Rectangle> CreateNewRectangle(Size rectangleSize)
     {
-        var rectangle = new Rectangle(placementStrategy.GetNextRectangleLocation(rectangleSize), rectangleSize);
-        while (CheckRectangleOverlaps(rectangle))
+        Result<Rectangle> rectangleResult;
+        return Result<Rectangle>.Of(() =>
         {
-            rectangle = new Rectangle(placementStrategy.GetNextRectangleLocation(rectangleSize), rectangleSize);
-        }
+            do
+            {
+                rectangleResult = placementStrategy.GetNextRectangleLocation(rectangleSize)
+                    .Then(point => new Rectangle(point, rectangleSize));
+            } while (rectangleResult.Then(CheckRectangleOverlaps).GetValueOrThrow());
 
-        return rectangle;
+            return rectangleResult.GetValueOrThrow();
+        });
     }
 
-    private Rectangle RectangleCompressions(Rectangle rectangle)
+    private Result<Rectangle> RectangleCompressions(Rectangle rectangle)
     {
-        var compressionRectangle = rectangle;
-        compressionRectangle = Compression(compressionRectangle,
-            moveRectangle => moveRectangle.X > Center.X,
-            moveRectangle => moveRectangle.X + rectangle.Width < Center.X,
-            (moveRectangle, direction) => moveRectangle with { X = moveRectangle.X + direction });
-
-        compressionRectangle = Compression(compressionRectangle,
-            moveRectangle => moveRectangle.Y > Center.Y,
-            moveRectangle => moveRectangle.Y + moveRectangle.Height < Center.Y,
-            (moveRectangle, direction) => moveRectangle with { Y = moveRectangle.Y + direction });
-
-        return compressionRectangle;
+        return CompressRectangle(rectangle,
+                moveRectangle => moveRectangle.X > Center.X,
+                moveRectangle => moveRectangle.X + rectangle.Width < Center.X,
+                (moveRectangle, direction) => moveRectangle with { X = moveRectangle.X + direction })
+            .Then(compressionRectangle => CompressRectangle(compressionRectangle,
+                moveRectangle => moveRectangle.Y > Center.Y,
+                moveRectangle => moveRectangle.Y + moveRectangle.Height < Center.Y,
+                (moveRectangle, direction) => moveRectangle with { Y = moveRectangle.Y + direction })
+            );
     }
 
-    private Rectangle Compression(Rectangle rectangle,
+    private Result<Rectangle> CompressRectangle(Rectangle rectangle,
         Func<Rectangle, bool> checkPositiveMove,
         Func<Rectangle, bool> checkNegativeMove,
         Func<Rectangle, int, Rectangle> doMove)
@@ -80,8 +102,8 @@ internal sealed class Layouter : ILayouter
                 break;
             }
 
-            if ((direction == -1 && !checkPositiveMove(moveRectangle))
-                || (direction == 1 && !checkNegativeMove(moveRectangle)))
+            if ((direction == -1 && !checkPositiveMove(moveRectangle)) ||
+                (direction == 1 && !checkNegativeMove(moveRectangle)))
             {
                 break;
             }
@@ -92,6 +114,6 @@ internal sealed class Layouter : ILayouter
 
     private bool CheckRectangleOverlaps(Rectangle rectangle)
     {
-        return Rectangles.Any(r => r.IntersectsWith(rectangle));
+        return rectangles.Any(r => r.IntersectsWith(rectangle));
     }
 }

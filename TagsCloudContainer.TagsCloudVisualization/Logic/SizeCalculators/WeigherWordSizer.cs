@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Drawing;
+using TagsCloudContainer.Core;
 using TagsCloudContainer.TagsCloudVisualization.Logic.SizeCalculators.Interfaces;
 using TagsCloudContainer.TagsCloudVisualization.Models;
 using TagsCloudContainer.TagsCloudVisualization.Providers.Interfaces;
@@ -8,7 +9,7 @@ namespace TagsCloudContainer.TagsCloudVisualization.Logic.SizeCalculators;
 
 internal class WeigherWordSizer(IImageSettingsProvider imageSettingsProvider) : IWeigherWordSizer
 {
-    public IReadOnlyCollection<ViewWord> CalculateWordSizes(IReadOnlyDictionary<string, int> wordFrequencies,
+    public Result<IReadOnlyCollection<ViewWord>> CalculateWordSizes(IReadOnlyDictionary<string, int> wordFrequencies,
         int minSize = 8, int maxSize = 24)
     {
         if (wordFrequencies.Count == 0)
@@ -17,20 +18,12 @@ internal class WeigherWordSizer(IImageSettingsProvider imageSettingsProvider) : 
         }
 
         var maxFrequency = wordFrequencies.Values.Max();
-        var wordSizes = new HashSet<ViewWord>();
         var settings = imageSettingsProvider.GetImageSettings();
-        foreach (var entry in wordFrequencies)
-        {
-            if (entry.Value <= 0)
-            {
-                continue;
-            }
-
-            var viewWord = CreateViewWord(entry.Key, entry.Value, maxFrequency, minSize, maxSize, settings.FontFamily);
-            wordSizes.Add(viewWord);
-        }
-
-        return wordSizes;
+        return wordFrequencies
+            .Where(entry => entry.Value > 0)
+            .Select(entry =>
+                CreateViewWord(entry.Key, entry.Value, maxFrequency, minSize, maxSize, settings.FontFamily))
+            .ToImmutableArray();
     }
 
     private static ViewWord CreateViewWord(string word, int frequency, int maxFrequency, int minSize, int maxSize,

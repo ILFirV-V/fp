@@ -1,6 +1,8 @@
-﻿namespace TagsCloudContainer.TagsCloudVisualization.Logic.Layouters.Interfaces;
+﻿using TagsCloudContainer.Core;
+
+namespace TagsCloudContainer.TagsCloudVisualization.Logic.Layouters.Interfaces;
 
 public interface ILayoutCreator
 {
-    public ILayouter? GetOrNull();
+    public Result<ILayouter> GetLayouter();
 }
