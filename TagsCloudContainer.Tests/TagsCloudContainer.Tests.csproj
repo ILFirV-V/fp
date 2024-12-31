@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="NUnit.Framework"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\TagsCloudContainer.ConsoleUi\TagsCloudContainer.ConsoleUi.csproj" />
+        <ProjectReference Include="..\TagsCloudContainer.TagsCloudVisualization\TagsCloudContainer.TagsCloudVisualization.csproj" />
+        <ProjectReference Include="..\TagsCloudContainer.TextAnalyzer\TagsCloudContainer.TextAnalyzer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
+        <PackageReference Include="FakeItEasy" Version="8.3.0" />
+        <PackageReference Include="FluentAssertions" Version="7.0.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="NUnit" Version="4.3.1" />
+        <PackageReference Include="NUnit.Analyzers" Version="4.5.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Client\TestData\test.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Client\TestData\result.jpeg">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Client\TestData\result.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Client\TestData\resultImageSettings.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Client\TestData\resultRedBlue.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Client\TestData\resultS.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Client\TestData\resultVSA.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="ConsoleUiTests\TestData\result.jpeg">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="ConsoleUiTests\TestData\result.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="ConsoleUiTests\TestData\resultImageSettings.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="ConsoleUiTests\TestData\resultRedBlue.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="ConsoleUiTests\TestData\resultS.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="ConsoleUiTests\TestData\resultVSA.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="ConsoleUiTests\TestData\test.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+</Project>
