@@ -1,8 +1,9 @@
-﻿using TagsCloudContainer.TextAnalyzer.Models;
+﻿using TagsCloudContainer.Core;
+using TagsCloudContainer.TextAnalyzer.Models;
 
 namespace TagsCloudContainer.TextAnalyzer.Logic.Filters.Interfaces;
 
-internal interface IWordFilter<in TDetails>
+internal interface IWordFilter<TDetails>
 {
-    public bool IsVerify(TDetails wordDetails, WordSettings settings);
+    public Result<TDetails> FilterAvailableByPartSpeech(TDetails wordDetails, WordSettings settings);
 }

@@ -1,6 +1,8 @@
-﻿namespace TagsCloudContainer.TextAnalyzer.Logic.Readers.Interfaces;
+﻿using TagsCloudContainer.Core;
+
+namespace TagsCloudContainer.TextAnalyzer.Logic.Readers.Interfaces;
 
 public interface IFileTextReader
 {
-    public string ReadText(string path);
+    public Result<string> ReadText(string path);
 }

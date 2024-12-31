@@ -1,6 +1,8 @@
-﻿namespace TagsCloudContainer.TextAnalyzer.Logic.Analyzers.Interfaces;
+﻿using TagsCloudContainer.Core;
 
-internal interface IWordAnalyzer<out TDetails>
+namespace TagsCloudContainer.TextAnalyzer.Logic.Analyzers.Interfaces;
+
+internal interface IWordAnalyzer<TDetails>
 {
-    public TDetails? AnalyzeWordOrNull(string word);
+    public Result<TDetails> AnalyzeWord(string word);
 }

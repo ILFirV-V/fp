@@ -1,6 +1,8 @@
-﻿namespace TagsCloudContainer.TextAnalyzer.Logic.Formatters.Interfaces;
+﻿using TagsCloudContainer.Core;
+
+namespace TagsCloudContainer.TextAnalyzer.Logic.Formatters.Interfaces;
 
 internal interface IWordFormatter<TWordData>
 {
-    public TWordData Format(TWordData wordData);
+    public Result<TWordData> Format(TWordData wordData);
 }

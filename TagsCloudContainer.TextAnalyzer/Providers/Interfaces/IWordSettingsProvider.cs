@@ -1,9 +1,10 @@
-﻿using TagsCloudContainer.TextAnalyzer.Models;
+﻿using TagsCloudContainer.Core;
+using TagsCloudContainer.TextAnalyzer.Models;
 
 namespace TagsCloudContainer.TextAnalyzer.Providers.Interfaces;
 
 public interface IWordSettingsProvider
 {
     public WordSettings GetWordSettings();
-    public void SetValidSpeechParts(IEnumerable<string> validSpeechParts);
+    public Result<None> SetValidSpeechParts(IEnumerable<string> validSpeechParts);
 }

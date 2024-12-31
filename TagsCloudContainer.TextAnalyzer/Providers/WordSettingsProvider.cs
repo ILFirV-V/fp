@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using TagsCloudContainer.Core;
 using TagsCloudContainer.TextAnalyzer.Models;
 using TagsCloudContainer.TextAnalyzer.Providers.Interfaces;
 
@@ -10,8 +11,19 @@ public class WordSettingsProvider : IWordSettingsProvider
 
     public WordSettings GetWordSettings() => settings;
 
-    public void SetValidSpeechParts(IEnumerable<string> validSpeechParts)
+    public Result<None> SetValidSpeechParts(IEnumerable<string> validSpeechParts)
     {
-        settings = settings with { ValidSpeechParts = validSpeechParts.ToFrozenSet() };
+        var speechParts = validSpeechParts.ToArray();
+        if (speechParts.Length == 0)
+        {
+            return new Error("Должен быть указан хотя бы одна доступная часть речи");
+        }
+
+        settings = settings with
+        {
+            ValidSpeechParts = speechParts.ToFrozenSet()
+        };
+
+        return new None();
     }
 }
