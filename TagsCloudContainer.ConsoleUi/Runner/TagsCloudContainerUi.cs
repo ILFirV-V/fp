@@ -1,4 +1,6 @@
 ﻿using TagsCloudContainer.ConsoleUi.Runner.Interfaces;
+using TagsCloudContainer.Core;
+using TagsCloudContainer.Core.Extensions;
 using TagsCloudContainer.TagsCloudVisualization.Logic.Visualizers.Interfaces;
 using TagsCloudContainer.TagsCloudVisualization.Providers.Interfaces;
 using TagsCloudContainer.TextAnalyzer.Logic.Preprocessors.Interfaces;
@@ -18,17 +20,23 @@ public class TagsCloudContainerUi(
 {
     public void Run()
     {
-        GenerateFile();
+        GenerateFile()
+            .Then(_ => Console.WriteLine("Изображение сгенерировано"))
+            .OnFail(error =>
+            {
+                Console.WriteLine(error.Message);
+                Environment.Exit(1);
+            });
     }
 
-    private void GenerateFile()
+    private Result<None> GenerateFile()
     {
         var pathSettings = fileSettingsProvider.GetPathSettings();
         var imageSettings = imageSettingsProvider.GetImageSettings();
         var wordSettings = wordSettingsProvider.GetWordSettings();
-        var text = fileReader.ReadText(pathSettings.InputPath);
-        var analyzeWords = textPreprocessor.GetWordFrequencies(text, wordSettings);
-        using var image = wordsCloudVisualizer.CreateImage(imageSettings, analyzeWords);
-        wordsCloudVisualizer.SaveImage(image, pathSettings);
+        return fileReader.ReadText(pathSettings.InputPath)
+            .Then(text => textPreprocessor.GetWordFrequencies(text, wordSettings))
+            .Then(analyzeWords => wordsCloudVisualizer.CreateImage(imageSettings, analyzeWords))
+            .Then(image => wordsCloudVisualizer.SaveImage(image, pathSettings));
     }
 }
