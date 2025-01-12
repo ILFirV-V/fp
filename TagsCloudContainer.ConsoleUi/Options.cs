@@ -6,6 +6,9 @@ namespace TagsCloudContainer.ConsoleUi;
 
 public class Options
 {
+    [Option('m', "mystem", Required = true, HelpText = "Путь до 'MyStem'")]
+    public string MyStemPath { get; set; } = string.Empty;
+
     [Option('p', "parts", Default = new[] { "V", "S", "A", "ADV", "NUM" }, HelpText =
         "Валидные части речи (V - глагол, S - существительное, A - прилагательное, ADV - наречие, NUM - числительное). "
         + "Дополнительная информация: https://yandex.ru/dev/mystem/doc/ru/grammemes-values")]
@@ -38,18 +41,25 @@ public class Options
     [Option('e', "extension", Default = "png", HelpText = "Формат файла (png, jpeg, bmp, jpg.)")]
     public string ImageFormatString { get; set; } = "png";
 
-    public ImageFormat ImageFormat
+    public bool TryGetImageFormat(out ImageFormat? imageFormat)
     {
-        get
+        imageFormat = null;
+
+        var lowerImageFormatString = ImageFormatString.ToLower();
+        switch (lowerImageFormatString)
         {
-            return ImageFormatString.ToLower() switch
-            {
-                "png" => ImageFormat.Png,
-                "jpg" => ImageFormat.Jpeg,
-                "jpeg" => ImageFormat.Jpeg,
-                "bmp" => ImageFormat.Bmp,
-                _ => throw new ArgumentException($"Unsupported image format: {ImageFormatString}")
-            };
+            case "png":
+                imageFormat = ImageFormat.Png;
+                return true;
+            case "jpg":
+            case "jpeg":
+                imageFormat = ImageFormat.Jpeg;
+                return true;
+            case "bmp":
+                imageFormat = ImageFormat.Bmp;
+                return true;
+            default:
+                return false;
         }
     }
 }

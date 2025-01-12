@@ -2,5 +2,5 @@
 
 public interface ITagsCloudContainerUi
 {
-    public void Run();
+    public void Run(string[] args);
 }

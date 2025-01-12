@@ -5,6 +5,7 @@ using TagsCloudContainer.Core.Extensions;
 using TagsCloudContainer.TagsCloudVisualization.Providers.Interfaces;
 using TagsCloudContainer.TextAnalyzer.Providers.Interfaces;
 using CommandLineError = CommandLine.Error;
+using Error = TagsCloudContainer.Core.Error;
 
 namespace TagsCloudContainer.ConsoleUi.Tuners;
 
@@ -14,29 +15,23 @@ public class Tuner(
     IWordSettingsProvider wordSettingsProvider)
     : ITuner
 {
-    public void Tune(string[] arguments)
+    public Result<None> Tune(string[] arguments)
     {
-        Parser.Default.ParseArguments<Options>(arguments)
-            .WithParsed(RunOptions)
-            .WithNotParsed(HandleParseError);
+        return Parser.Default.ParseArguments<Options>(arguments)
+            .MapResult(RunOptions, HandleParseError);
     }
 
-    private static void HandleParseError(IEnumerable<CommandLineError> errs)
+    private static Result<None> HandleParseError(IEnumerable<CommandLineError> errs)
     {
-        Console.WriteLine("Ошибка при настройке.");
-        Environment.Exit(1);
+        var errors = errs.Select(err => err.Tag.ToString()).ToList();
+        return new Error($"При чтении опций произошла ошибка. Теги ошибок: {errors}");
     }
 
-    private void RunOptions(Options options)
+    private Result<None> RunOptions(Options options)
     {
-        SetFileSettings(options)
+        return SetFileSettings(options)
             .Then(_ => SetImageSettings(options))
-            .Then(_ => SetWordSettings(options))
-            .OnFail(error =>
-            {
-                Console.WriteLine($"Ошибка при настройке. {error.Message}");
-                Environment.Exit(1);
-            });
+            .Then(_ => SetWordSettings(options));
     }
 
     private Result<None> SetFileSettings(Options options)
@@ -44,12 +39,22 @@ public class Tuner(
         var currentSettings = fileSettingsProvider.GetPathSettings();
 
         return Result.Ok()
-            .Then(_ => SetIfChanged(options.ImageFormat, currentSettings.ImageFormat,
-                fileSettingsProvider.SetImageFormat))
-            .Then(_ => SetIfChanged(options.InputPath, currentSettings.InputPath, fileSettingsProvider.SetInputPath))
-            .Then(_ => SetIfChanged(options.OutputPath, currentSettings.OutputPath, fileSettingsProvider.SetOutputPath))
+            .Then(_ => SetIfChanged(options.InputPath, currentSettings.InputPath,
+                fileSettingsProvider.SetInputPath))
+            .Then(_ => SetIfChanged(options.OutputPath, currentSettings.OutputPath,
+                fileSettingsProvider.SetOutputPath))
             .Then(_ => SetIfChanged(options.OutputFileName, currentSettings.OutputFileName,
-                fileSettingsProvider.SetOutputFileName));
+                fileSettingsProvider.SetOutputFileName))
+            .Then(_ =>
+            {
+                if (!options.TryGetImageFormat(out var imageFormat))
+                {
+                    return new Error("Не удалось получить формат изображения");
+                }
+
+                return SetIfChanged(imageFormat, currentSettings.ImageFormat,
+                    fileSettingsProvider.SetImageFormat);
+            });
     }
 
     private Result<None> SetWordSettings(Options options)
@@ -57,7 +62,9 @@ public class Tuner(
         var currentSettings = wordSettingsProvider.GetWordSettings();
         return Result.Ok()
             .Then(_ => SetIfChanged(options.ValidSpeechParts, currentSettings.ValidSpeechParts,
-                wordSettingsProvider.SetValidSpeechParts));
+                wordSettingsProvider.SetValidSpeechParts))
+            .Then(_ => SetIfChanged(options.MyStemPath, currentSettings.MyStemPath,
+                wordSettingsProvider.SetMyStemPath));
     }
 
     private Result<None> SetImageSettings(Options options)

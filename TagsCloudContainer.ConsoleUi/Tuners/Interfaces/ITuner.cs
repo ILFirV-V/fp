@@ -1,6 +1,8 @@
-﻿namespace TagsCloudContainer.ConsoleUi.Tuners.Interfaces;
+﻿using TagsCloudContainer.Core;
+
+namespace TagsCloudContainer.ConsoleUi.Tuners.Interfaces;
 
 public interface ITuner
 {
-    public void Tune(string[] arguments);
+    public Result<None> Tune(string[] arguments);
 }

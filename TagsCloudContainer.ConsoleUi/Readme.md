@@ -9,7 +9,7 @@
     - Описание: Позволяет настроить пути к файлам, используемые приложением.
     - Синтаксис:
 
-      `<название exe файла> -i <путь_к_входному_файлу> -o <путь_к_выходному_файлу> -n <имя_выходного_файла> [-e <формат_изображения>]`
+      `<название exe файла> -i <путь_к_входному_файлу> -o <путь_к_выходному_файлу> -n <имя_выходного_файла> [-e <формат_изображения>] <настройка пути к mystem>`
 
     - Опции:
         - -i, --input (обязательно): Путь к текстовому файлу для анализа.
@@ -21,17 +21,17 @@
     - Примеры:
         - Установка входного файла, пути вывода и имени файла, формата нет
 
-          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud`
+          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -m mystem.exe`
         - Установка всех параметров, включая формат изображения (jpg):
 
-          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -e jpg`
+          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -e jpg -m mystem.exe`
 
 2. настройки изображений
 
     - Описание: Позволяет настроить параметры изображения.
     - Синтаксис:
 
-      `<настройки путей файлов> [-w <ширина>] [-h <высота>] [-b <цвет_фона>] [-c <цвет_слов>] [-f <шрифт>]`
+      `<настройки путей файлов> <настройка пути к mystem> [-w <ширина>] [-h <высота>] [-b <цвет_фона>] [-c <цвет_слов>] [-f <шрифт>]`
     - Опции:
         - -w, --width (необязательно): Ширина изображения.
         - -h, --height (необязательно): Высота изображения.
@@ -42,34 +42,36 @@
 
         - Установка ширины и высоты изображения:
 
-          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -w 800 -h 600`
+          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -m mystem.exe -w 800 -h 600`
 
         - Установка цвета фона, слов, ширины и высоты:
 
-          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -b White -c Black -w 1000 -h 800`
+          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -m mystem.exe -b White -c Black -w 1000 -h 800`
 
         - Установка цвета слов и шрифта:
 
-          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -c Red -f Arial`
+          `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -m mystem.exe -c Red -f Arial`
 
 3. Настройка анализа слов
 
     - Описание: Позволяет настроить параметры анализа слов.
     - Синтаксис:
 
-      `<настройки путей файлов> [-p <части_речи1,части_речи2,...>]`
+      `<настройки путей файлов> -m <путь_к_mystem.exe> [-p <части_речи1,части_речи2,...>]`
 
     - Опции:
         - -p, --parts (необязательно): Список частей речи, которые должны быть включены в анализ (через пробел).
+        - -m, --mystem (обязательно): Путь до MyStem для анализа слов.
+
     - Примеры:
 
         - Установка анализа только для существительных и глаголов:
 
-      `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -p S V`
+      `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -m mystem.exe -p S V`
 
         - Установка анализа для прилагательных:
 
-      `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -p A`
+      `TagsCloudContainer.ConsoleUi.exe -i input.txt -o output_folder -n my_cloud -m mystem.exe -p A`
 
 ### Примечания
 
@@ -81,16 +83,16 @@
 - Конфигурирование происходит при запуске приложения
 
 ### Примеры команд
-1) `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e jpg`
+1) `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e jpg -m <путь_к_mystem.exe>`
 результат как в `result.jpeg` в папке `TagsCloudContainer.ConsoleUi\Examples`
-2) `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e png`
+2) `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e png -m <путь_к_mystem.exe>`
 результат как в `result.png` в папке `TagsCloudContainer.ConsoleUi\Examples`
-3) после настройки путей: `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -p S V A`
+3) после настройки путей: `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -m <путь_к_mystem.exe> -p S V A`
 результат как в `resultVSA.png` в папке `TagsCloudContainer.ConsoleUi\Examples`
-4) после настройки путей: `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e png -p S`
+4) после настройки путей: `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e png -m <путь_к_mystem.exe> -p S`
 результат как в `resultS.png` в папке `TagsCloudContainer.ConsoleUi\Examples`
 5) две команды для получения такого же результата как в `resultImageSettings.png`: 
-`TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e png -p S V A ADV NUM -w 800 -h 600 -b White -c Black -f Arial`
+`TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e png -m <путь_к_mystem.exe> -p S V A ADV NUM -w 800 -h 600 -b White -c Black -f Arial`
 результат как в `resultImageSettings.png` в папке `TagsCloudContainer.ConsoleUi\Examples`
-6) `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e png -w 800 -h 600 -b Red -c Blue -f Arial` 
+6) `TagsCloudContainer.ConsoleUi.exe -i <путь_к_входному_файлу_с_файлом> -o <путь_к_выходному_файлу> -n result -e png -m <путь_к_mystem.exe> -w 800 -h 600 -b Red -c Blue -f Arial` 
 результат как в `resultRedBlue.png` в папке `TagsCloudContainer.ConsoleUi\Examples`

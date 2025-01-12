@@ -3,6 +3,8 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using TagsCloudContainer.ConsoleUi.Runner;
 using TagsCloudContainer.ConsoleUi.Runner.Interfaces;
+using TagsCloudContainer.ConsoleUi.Tuners;
+using TagsCloudContainer.ConsoleUi.Tuners.Interfaces;
 using TagsCloudContainer.TagsCloudVisualization.Extensions;
 using TagsCloudContainer.TextAnalyzer.Extensions;
 
@@ -17,7 +19,7 @@ public class ConsoleClientModule : Module
         services.AddTagsCloudVisualization();
 
         builder.Populate(services);
-
+        builder.RegisterType<Tuner>().As<ITuner>();
         builder.RegisterType<TagsCloudContainerUi>().As<ITagsCloudContainerUi>();
     }
 }

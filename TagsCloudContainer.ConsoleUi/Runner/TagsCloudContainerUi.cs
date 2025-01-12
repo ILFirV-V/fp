@@ -1,4 +1,5 @@
 ﻿using TagsCloudContainer.ConsoleUi.Runner.Interfaces;
+using TagsCloudContainer.ConsoleUi.Tuners.Interfaces;
 using TagsCloudContainer.Core;
 using TagsCloudContainer.Core.Extensions;
 using TagsCloudContainer.TagsCloudVisualization.Logic.Visualizers.Interfaces;
@@ -10,6 +11,7 @@ using TagsCloudContainer.TextAnalyzer.Providers.Interfaces;
 namespace TagsCloudContainer.ConsoleUi.Runner;
 
 public class TagsCloudContainerUi(
+    ITuner tuner,
     IFileTextReader fileReader,
     ITextPreprocessor textPreprocessor,
     IWordsCloudVisualizer wordsCloudVisualizer,
@@ -18,9 +20,10 @@ public class TagsCloudContainerUi(
     IWordSettingsProvider wordSettingsProvider)
     : ITagsCloudContainerUi
 {
-    public void Run()
+    public void Run(string[] args)
     {
-        GenerateFile()
+        tuner.Tune(args)
+            .Then(_ => GenerateFile())
             .Then(_ => Console.WriteLine("Изображение сгенерировано"))
             .OnFail(error =>
             {
@@ -37,6 +40,7 @@ public class TagsCloudContainerUi(
         return fileReader.ReadText(pathSettings.InputPath)
             .Then(text => textPreprocessor.GetWordFrequencies(text, wordSettings))
             .Then(analyzeWords => wordsCloudVisualizer.CreateImage(imageSettings, analyzeWords))
-            .Then(image => wordsCloudVisualizer.SaveImage(image, pathSettings));
+            .Then(image => wordsCloudVisualizer.SaveImage(image, pathSettings)
+                .Then(_ => image.Dispose()));
     }
 }
