@@ -5,6 +5,6 @@ namespace TagsCloudContainer.TagsCloudVisualization.Logic.Strategies.Interfaces;
 
 public interface IRectanglePlacementStrategy
 {
-    public Result<None> SetCenterPoint(Point center);
+    public void SetCenterPoint(Point setCenter);
     public Result<Point> GetNextRectangleLocation(Size rectangleSize);
 }

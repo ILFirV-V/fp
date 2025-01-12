@@ -23,9 +23,9 @@ public class FileSettingsProvider : IFileSettingsProvider
 
     public Result<None> SetInputPath(string path)
     {
-        if (!File.Exists(path))
+        if (string.IsNullOrWhiteSpace(path))
         {
-            return new Error($"Файл по указанному пути '{path}' не существует.");
+            return new Error("Нужно указать путь до файла с входными данными.");
         }
 
         fileSettings = fileSettings with
@@ -38,9 +38,9 @@ public class FileSettingsProvider : IFileSettingsProvider
 
     public Result<None> SetOutputPath(string path)
     {
-        if (!Directory.Exists(path))
+        if (string.IsNullOrWhiteSpace(path))
         {
-            return new Error($"Папки по указанному пути '{path}' не существует.");
+            return new Error("Нужно указать путь до папки куда будет сохранен итоговый файл.");
         }
 
         fileSettings = fileSettings with
@@ -53,10 +53,9 @@ public class FileSettingsProvider : IFileSettingsProvider
 
     public Result<None> SetOutputFileName(string fileName)
     {
-        var expectedFilePath = Path.Combine(fileSettings.OutputPath, fileName);
-        if (File.Exists(expectedFilePath))
+        if (string.IsNullOrWhiteSpace(fileName))
         {
-            return new Error($"Файл с именем '{fileName}' в папке '{fileSettings.OutputPath}' уже существует.");
+            return new Error("Имя итогового файла не может быть пустым");
         }
 
         fileSettings = fileSettings with

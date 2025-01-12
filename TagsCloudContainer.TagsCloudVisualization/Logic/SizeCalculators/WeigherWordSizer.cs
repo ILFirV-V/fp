@@ -12,6 +12,11 @@ internal class WeigherWordSizer(IImageSettingsProvider imageSettingsProvider) : 
     public Result<IReadOnlyCollection<ViewWord>> CalculateWordSizes(IReadOnlyDictionary<string, int> wordFrequencies,
         int minSize = 8, int maxSize = 24)
     {
+        if (minSize > maxSize)
+        {
+            return new Error("Минимальный размер должен быть меньше или равен максимальному размеру.");
+        }
+
         if (wordFrequencies.Count == 0)
         {
             return ImmutableArray<ViewWord>.Empty;
@@ -36,13 +41,13 @@ internal class WeigherWordSizer(IImageSettingsProvider imageSettingsProvider) : 
         return new ViewWord(word, font);
     }
 
-    private static double CalculateFontSize(int minSize, int maxSize, double normalizedFrequency)
-    {
-        return minSize + (maxSize - minSize) * normalizedFrequency;
-    }
-
     private static double CalculateNormalizedFrequency(int wordFrequency, int maxFrequency)
     {
         return Math.Log10(wordFrequency + 1) / Math.Log10(maxFrequency + 1);
+    }
+
+    private static double CalculateFontSize(int minSize, int maxSize, double normalizedFrequency)
+    {
+        return minSize + (maxSize - minSize) * normalizedFrequency;
     }
 }

@@ -16,6 +16,16 @@ public class WordsCloudVisualizer(ILayoutCreator containerCreator, IWeigherWordS
     public Result<None> SaveImage(Image image, FileSettings settings)
     {
         var fileNameWithFormat = $"{settings.OutputFileName}{settings.ImageFormat.FileExtensionFromToString()}";
+        if (!Directory.Exists(settings.OutputPath))
+        {
+            return new Error($"Папки по указанному пути '{settings.OutputPath}' не существует.");
+        }
+
+        if (File.Exists(fileNameWithFormat))
+        {
+            return new Error($"Файл '{settings.OutputFileName}' в папке '{settings.OutputPath}' уже существует.");
+        }
+
         var path = Path.Combine(settings.OutputPath, fileNameWithFormat);
         return Result.OfAction(() => image.Save(path, settings.ImageFormat));
     }

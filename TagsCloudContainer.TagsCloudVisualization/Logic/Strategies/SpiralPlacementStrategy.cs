@@ -13,15 +13,14 @@ public class SpiralPlacementStrategy : IRectanglePlacementStrategy
     private const int DistanceLayersDifference = 1;
     private const double BetweenAngleDifference = Math.PI / 36;
 
-    public Result<None> SetCenterPoint(Point center)
+    public void SetCenterPoint(Point setCenter)
     {
-        this.center = center;
-        return Result.Ok();
+        center = setCenter;
     }
 
     public Result<Point> GetNextRectangleLocation(Size rectangleSize)
     {
-        if (rectangleSize.Width == 0 || rectangleSize.Height == 0)
+        if (rectangleSize.Width <= 0 || rectangleSize.Height <= 0)
         {
             return new Error("Размер ширины и высоты должен быть больше 0.");
         }
