@@ -30,23 +30,23 @@ public partial class WordAnalyzerTests
 
     [Test]
     [TestCaseSource(nameof(validWordsTestCases))]
-    public void AnalyzeWordOrNull_Should_HaveExpectedWordDetails(string word, WordDetails expectedWordDetails)
+    public void TryAnalyzeWord_Should_HaveExpectedWordDetails(string word, WordDetails expectedWordDetails)
     {
         var analyzer = new WordAnalyzer(myStem);
 
-        var result = analyzer.AnalyzeWord(word);
+        _ = analyzer.TryAnalyzeWord(word, out var result);
 
-        result.GetValueOrThrow().Should().BeEquivalentTo(expectedWordDetails);
+        result.Should().BeEquivalentTo(expectedWordDetails);
     }
 
     [Test]
     [TestCaseSource(nameof(notValidWordsTestCases))]
-    public void AnalyzeWordOrNull_Should_WithError(string word)
+    public void TryAnalyzeWord_ShouldFalse_WhereError(string word)
     {
         var analyzer = new WordAnalyzer(myStem);
 
-        var result = analyzer.AnalyzeWord(word);
+        var isAnalyze = analyzer.TryAnalyzeWord(word, out _);
 
-        result.Error.Should().NotBeNull();
+        isAnalyze.Should().BeFalse();
     }
 }

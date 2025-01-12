@@ -3,8 +3,6 @@ using Autofac;
 using FluentAssertions;
 using TagsCloudContainer.ConsoleUi;
 using TagsCloudContainer.ConsoleUi.Runner.Interfaces;
-using TagsCloudContainer.ConsoleUi.Tuners;
-using TagsCloudContainer.ConsoleUi.Tuners.Interfaces;
 
 namespace TagsCloudContainer.Tests.ConsoleUiTests;
 
@@ -12,12 +10,12 @@ namespace TagsCloudContainer.Tests.ConsoleUiTests;
 public partial class ConsoleClientTests
 {
     private IContainer scope;
+    private ContainerBuilder builder;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
-        var builder = new ContainerBuilder();
-        builder.RegisterType<Tuner>().As<ITuner>();
+        builder = new ContainerBuilder();
         builder.RegisterModule(new ConsoleClientModule());
         scope = builder.Build();
     }
@@ -27,10 +25,8 @@ public partial class ConsoleClientTests
     public void Run_ShouldContainsImage_AfterGenerate(string inputString, string resultOutputImagePath)
     {
         var runner = scope.Resolve<ITagsCloudContainerUi>();
-        var tuner = scope.Resolve<ITuner>();
 
-        tuner.Tune(inputString.Split());
-        runner.Run();
+        runner.Run(inputString.Split());
 
         File.Exists(resultOutputImagePath).Should().BeTrue("Файл изображения должен существовать после генерации");
         if (File.Exists(resultOutputImagePath))
@@ -44,11 +40,9 @@ public partial class ConsoleClientTests
     public void Run_Should_EqualsExpectedImage(string inputString, string outputImagePath, string expectedImagePath)
     {
         var runner = scope.Resolve<ITagsCloudContainerUi>();
-        var tuner = scope.Resolve<ITuner>();
         using var referenceImage = new Bitmap(expectedImagePath);
 
-        tuner.Tune(inputString.Split());
-        runner.Run();
+        runner.Run(inputString.Split());
 
         using var outputImage = new Bitmap(outputImagePath);
         IsImagesAreEqual(referenceImage, outputImage).Should().BeTrue("Пиксели изображений должны совпадать");
@@ -77,7 +71,7 @@ public partial class ConsoleClientTests
         return true;
     }
 
-    [OneTimeTearDown]
+    [TearDown]
     public void TearDown()
     {
         scope.Dispose();

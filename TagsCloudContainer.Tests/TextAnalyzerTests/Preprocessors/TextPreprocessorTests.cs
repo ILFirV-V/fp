@@ -28,7 +28,7 @@ public partial class TextPreprocessorTests
     }
 
     [Test]
-    [TestCaseSource(nameof(validTestCases))]
+    [TestCaseSource(nameof(ValidTestCases))]
     public void GetWordFrequencies_Should_EqualToExpectedWordFrequencies(string text, WordSettings settings,
         IReadOnlyDictionary<string, int> wordFrequencies)
     {

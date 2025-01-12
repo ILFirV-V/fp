@@ -25,7 +25,7 @@ public class LayoutCreatorTests
     }
 
     [Test]
-    public void GetOrNull_ShouldIsFail_WhenLayouterIsNotRegistered()
+    public void GetLayouter_ShouldIsFail_WhenLayouterIsNotRegistered()
     {
         var fakeServiceProvider = A.Fake<IServiceProvider>();
         A.CallTo(() => fakeServiceProvider.GetService(typeof(ILayouter))).Returns(null);

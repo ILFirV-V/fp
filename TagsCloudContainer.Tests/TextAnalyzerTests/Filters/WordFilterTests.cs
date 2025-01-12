@@ -47,9 +47,9 @@ public class WordFilterTests
         var filter = new WordFilter();
         var wordDetails = new WordDetails(startWordFake, formatedWordFake, expectedSpeechPart);
 
-        var result = filter.FilterAvailableByPartSpeech(wordDetails, settings);
+        var result = filter.IsVerify(wordDetails, settings);
 
-        result.IsSuccess.Should().BeTrue();
+        result.Should().BeTrue();
     }
 
     [Test]
@@ -59,8 +59,8 @@ public class WordFilterTests
         var filter = new WordFilter();
         var wordDetails = new WordDetails(startWordFake, formatedWordFake, expectedSpeechPart);
 
-        var result = filter.FilterAvailableByPartSpeech(wordDetails, settings);
+        var result = filter.IsVerify(wordDetails, settings);
 
-        result.IsFail.Should().BeTrue();
+        result.Should().BeFalse();
     }
 }

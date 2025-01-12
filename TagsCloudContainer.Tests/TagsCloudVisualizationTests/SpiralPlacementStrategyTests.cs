@@ -51,7 +51,7 @@ public class SpiralPlacementStrategyTests
 
     [Test]
     [TestCaseSource(nameof(zeroSizeCases))]
-    public void PutNextRectangle_ShouldIsFail_WhenError(Size rectangleSize)
+    public void PutNextRectangle_ShouldIsFail_WhenErrorSizes(Size rectangleSize)
     {
         var action = strategy.GetNextRectangleLocation(rectangleSize);
 

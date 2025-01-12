@@ -36,6 +36,6 @@ public class WordReaderTests
 
         var result = reader.ReadWords(text);
 
-        result.GetValueOrThrow().Should().BeEquivalentTo(expectedResult);
+        result.Should().BeEquivalentTo(expectedResult);
     }
 }
