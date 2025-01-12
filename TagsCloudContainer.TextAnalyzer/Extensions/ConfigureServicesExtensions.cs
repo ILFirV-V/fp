@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using MyStemWrapper;
 using TagsCloudContainer.TextAnalyzer.Logic.Analyzers;
 using TagsCloudContainer.TextAnalyzer.Logic.Analyzers.Interfaces;
 using TagsCloudContainer.TextAnalyzer.Logic.Filters;
@@ -20,24 +19,12 @@ public static class ConfigureServicesExtensions
 {
     public static IServiceCollection AddTextAnalyzerServices(this IServiceCollection services)
     {
-        var resourceDirectory = Path.Combine(AppContext.BaseDirectory, "Resources");
-        var myStemPath = Path.Combine(resourceDirectory, "mystem.exe");
-        if (!File.Exists(myStemPath))
-        {
-            throw new FileNotFoundException($"Файл MyStem не найден по пути: {myStemPath}");
-        }
-
-        services.AddSingleton(new MyStem
-        {
-            PathToMyStem = myStemPath,
-            Parameters = "-nli"
-        });
         services.AddSingleton<IFileTextReader, FileTextReader>();
-        services.AddScoped<IWordAnalyzer<WordDetails>, WordAnalyzer>();
         services.AddSingleton<IWordFormatter<WordDetails>, WordCaseFormatter>();
         services.AddSingleton<IWordFilter<WordDetails>, WordFilter>();
         services.AddSingleton<IWordReader, WordReader>();
         services.AddSingleton<IWordSettingsProvider, WordSettingsProvider>();
+        services.AddSingleton<IAnalyzerFactory, AnalyzerFactory>();
         services.AddScoped<ITextPreprocessor, TextPreprocessor>();
 
         return services;

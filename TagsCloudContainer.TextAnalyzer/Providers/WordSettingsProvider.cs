@@ -16,12 +16,27 @@ public class WordSettingsProvider : IWordSettingsProvider
         var speechParts = validSpeechParts.ToArray();
         if (speechParts.Length == 0)
         {
-            return new Error("Должен быть указан хотя бы одна доступная часть речи");
+            return new Error("Должна быть указана хотя бы одна доступная часть речи");
         }
 
         settings = settings with
         {
             ValidSpeechParts = speechParts.ToFrozenSet()
+        };
+
+        return new None();
+    }
+
+    public Result<None> SetMyStemPath(string myStemPath)
+    {
+        if (string.IsNullOrWhiteSpace(myStemPath))
+        {
+            return new Error("Нужно указать путь до myStem.exe");
+        }
+        
+        settings = settings with
+        {
+            MyStemPath = myStemPath
         };
 
         return new None();

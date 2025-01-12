@@ -1,41 +1,42 @@
 ﻿using MyStemWrapper;
-using TagsCloudContainer.Core;
 using TagsCloudContainer.TextAnalyzer.Logic.Analyzers.Interfaces;
 using TagsCloudContainer.TextAnalyzer.Models;
 
 namespace TagsCloudContainer.TextAnalyzer.Logic.Analyzers;
 
-internal sealed class WordAnalyzer(MyStem myStem) : IWordAnalyzer<WordDetails>
+public class WordAnalyzer(MyStem myStem) : IAnalyzer<WordDetails>
 {
-    public Result<WordDetails> AnalyzeWord(string word)
+    public bool TryAnalyzeWord(string word, out WordDetails wordDetails)
     {
+        wordDetails = new WordDetails(word, "unknown", "unknown");
         string analyzedWordInfo;
         try
         {
             analyzedWordInfo = myStem.Analysis(word);
         }
-        catch (Exception e)
+        catch
         {
-            return new Error($"Во время анализа слова произошла ошибка. {e.Message}");
+            return false;
         }
 
         if (string.IsNullOrWhiteSpace(analyzedWordInfo))
         {
-            return new Error("Во время анализа слова произошла ошибка.");
+            return false;
         }
 
         var parts = analyzedWordInfo.Split('=');
         if (parts.Length < 2 || string.IsNullOrWhiteSpace(parts[0]) || string.IsNullOrWhiteSpace(parts[1]))
         {
-            return new Error("Данных о слове после анализа слишком мало.");
+            return false;
         }
 
         var speechParts = parts[1].Split(',');
         if (speechParts.Length == 0 || string.IsNullOrWhiteSpace(speechParts[0]))
         {
-            return new Error("Данных о слове после анализа слишком мало. Не смогли узнать часть речи");
+            return false;
         }
 
-        return new WordDetails(word, parts[0].Trim(), speechParts[0].Trim());
+        wordDetails = new WordDetails(word, parts[0].Trim(), speechParts[0].Trim());
+        return true;
     }
 }

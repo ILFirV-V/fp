@@ -12,13 +12,27 @@ internal sealed class FileTextReader : IFileTextReader
             return new Error($"Файл по указанному пути '{filePath}' не существует.");
         }
 
-        using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
-        return ReadText(fileStream);
-    }
-
-    private static Result<string> ReadText(Stream stream)
-    {
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
+        try
+        {
+            using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
+            using var reader = new StreamReader(fileStream);
+            return reader.ReadToEnd();
+        }
+        catch (FileNotFoundException)
+        {
+            return new Error($"Файл по указанному пути '{filePath}' не найден");
+        }
+        catch (IOException ex)
+        {
+            return new Error($"Ошибка ввода-вывода при чтении файла '{filePath}': {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return new Error($"Нет доступа к файлу '{filePath}': {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return new Error($"Неизвестная ошибка при чтении файла '{filePath}': {ex.Message}");
+        }
     }
 }

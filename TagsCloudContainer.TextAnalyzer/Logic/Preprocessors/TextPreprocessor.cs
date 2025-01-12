@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using TagsCloudContainer.Core;
+﻿using TagsCloudContainer.Core;
 using TagsCloudContainer.Core.Extensions;
 using TagsCloudContainer.TextAnalyzer.Logic.Analyzers.Interfaces;
 using TagsCloudContainer.TextAnalyzer.Logic.Filters.Interfaces;
@@ -12,34 +11,36 @@ namespace TagsCloudContainer.TextAnalyzer.Logic.Preprocessors;
 
 internal sealed class TextPreprocessor(
     IWordReader wordReader,
-    IWordAnalyzer<WordDetails> wordAnalyzer,
+    IAnalyzerFactory analyzerFactory,
     IWordFilter<WordDetails> wordFilter,
     IWordFormatter<WordDetails> wordFormatter)
     : ITextPreprocessor
 {
     public Result<IReadOnlyDictionary<string, int>> GetWordFrequencies(string text, WordSettings settings)
     {
-        return wordReader
-            .ReadWords(text)
-            .Then(words => PreprocessWords(words, settings));
+        var words = wordReader.ReadWords(text);
+        return analyzerFactory.CreateAnalyzer(settings)
+            .Then(analyzer => PreprocessWords(analyzer, words, settings));
     }
 
-    private Result<IReadOnlyDictionary<string, int>> PreprocessWords(IReadOnlyCollection<string> words,
+    private IReadOnlyDictionary<string, int> PreprocessWords(IAnalyzer<WordDetails> wordAnalyzer,
+        IReadOnlyCollection<string> words,
         WordSettings settings)
     {
-        return words
-            .Select(word => wordAnalyzer.AnalyzeWord(word)
-                .Then(details => wordFilter.FilterAvailableByPartSpeech(details, settings))
-                .Then(wordFormatter.Format)
-                .Then(details => details.FormatedWord))
-            .Where(r => r.IsSuccess)
-            .Select(res => res.GetValueOrThrow())
-            .Aggregate(new Dictionary<string, int>(), (freq, word) =>
+        var wordDetails = words.Aggregate(new List<WordDetails>(), (list, word) =>
+        {
+            if (wordAnalyzer.TryAnalyzeWord(word, out var result))
             {
-                freq.TryAdd(word, 0);
-                freq[word]++;
-                return freq;
-            })
-            .ToFrozenDictionary();
+                list.Add(result);
+            }
+
+            return list;
+        });
+
+        return wordDetails
+            .Where(d => wordFilter.IsVerify(d, settings))
+            .Select(d => wordFormatter.Format(d).FormatedWord)
+            .GroupBy(word => word)
+            .ToDictionary(group => group.Key, group => group.Count());
     }
 }
