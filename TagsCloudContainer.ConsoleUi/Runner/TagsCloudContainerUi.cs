@@ -40,7 +40,12 @@ public class TagsCloudContainerUi(
         return fileReader.ReadText(pathSettings.InputPath)
             .Then(text => textPreprocessor.GetWordFrequencies(text, wordSettings))
             .Then(analyzeWords => wordsCloudVisualizer.CreateImage(imageSettings, analyzeWords))
-            .Then(image => wordsCloudVisualizer.SaveImage(image, pathSettings)
-                .Then(_ => image.Dispose()));
+            .Then(image =>
+            {
+                using (image)
+                {
+                    return wordsCloudVisualizer.SaveImage(image, pathSettings);
+                }
+            });
     }
 }
