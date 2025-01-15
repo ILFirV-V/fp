@@ -1,6 +1,8 @@
-﻿namespace TagsCloudContainer.ConsoleUi.Runner.Interfaces;
+﻿using TagsCloudContainer.Core;
+
+namespace TagsCloudContainer.ConsoleUi.Runner.Interfaces;
 
 public interface ITagsCloudContainerUi
 {
-    public void Run(string[] args);
+    public Result<None> Run(string[] args);
 }

@@ -12,6 +12,11 @@ internal class WeigherWordSizer(IImageSettingsProvider imageSettingsProvider) : 
     public Result<IReadOnlyCollection<ViewWord>> CalculateWordSizes(IReadOnlyDictionary<string, int> wordFrequencies,
         int minSize = 8, int maxSize = 24)
     {
+        if (minSize <= 0 || maxSize <= 0)
+        {
+            return new Error("Минимальный и максимальный размеры должны быть положительны");
+        }
+
         if (minSize > maxSize)
         {
             return new Error("Минимальный размер должен быть меньше или равен максимальному размеру.");

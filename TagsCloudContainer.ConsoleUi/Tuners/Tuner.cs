@@ -23,8 +23,8 @@ public class Tuner(
 
     private static Result<None> HandleParseError(IEnumerable<CommandLineError> errs)
     {
-        var errors = errs.Select(err => err.Tag.ToString()).ToList();
-        return new Error($"При чтении опций произошла ошибка. Теги ошибок: {errors}");
+        var errorTags = string.Join("\n", errs);
+        return new Error($"При чтении опций произошла ошибка. Теги ошибок:\n{errorTags}");
     }
 
     private Result<None> RunOptions(Options options)

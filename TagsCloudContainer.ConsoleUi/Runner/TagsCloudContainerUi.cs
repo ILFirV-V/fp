@@ -20,16 +20,9 @@ public class TagsCloudContainerUi(
     IWordSettingsProvider wordSettingsProvider)
     : ITagsCloudContainerUi
 {
-    public void Run(string[] args)
+    public Result<None> Run(string[] args)
     {
-        tuner.Tune(args)
-            .Then(_ => GenerateFile())
-            .Then(_ => Console.WriteLine("Изображение сгенерировано"))
-            .OnFail(error =>
-            {
-                Console.WriteLine(error.Message);
-                Environment.Exit(1);
-            });
+        return tuner.Tune(args).Then(_ => GenerateFile());
     }
 
     private Result<None> GenerateFile()
