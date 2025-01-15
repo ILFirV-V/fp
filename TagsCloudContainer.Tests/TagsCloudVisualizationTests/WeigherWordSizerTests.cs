@@ -66,4 +66,16 @@ public partial class WeigherWordSizerTests
 
         result.GetValueOrThrow().Max(w => w.Font.Size).Should().Be(maxSize);
     }
+
+    [Test]
+    [TestCaseSource(nameof(errorCustomMinMaxSizeCases))]
+    public void CalculateWordSizes_ShouldWithError_WhereErrorSizes(IReadOnlyDictionary<string, int> wordFrequencies,
+        int minSize, int maxSize)
+    {
+        var calculator = new WeigherWordSizer(imageSettingsProvider);
+
+        var result = calculator.CalculateWordSizes(wordFrequencies, minSize, maxSize);
+
+        result.Error.Should().NotBeNull();
+    }
 }

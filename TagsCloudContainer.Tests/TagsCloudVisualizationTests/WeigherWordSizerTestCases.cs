@@ -4,6 +4,24 @@ namespace TagsCloudContainer.Tests.TagsCloudVisualizationTests;
 
 public partial class WeigherWordSizerTests
 {
+    private static readonly IReadOnlyCollection<TestCaseData> errorCustomMinMaxSizeCases =
+    [
+        new TestCaseData(new Dictionary<string, int> { { "test", 10 } }, 0, 30)
+            .SetName("ZeroMinSize"),
+        new TestCaseData(new Dictionary<string, int> { { "test", 10 } }, 0, 0)
+            .SetName("AllZeroSizes"),
+        new TestCaseData(new Dictionary<string, int> { { "test", 100 }, { "another", 50 } }, 5, 1)
+            .SetName("MinSizeMoreMaxSize"),
+        new TestCaseData(new Dictionary<string, int> { { "test", 10 } }, -2, -1)
+            .SetName("NegativeSizes"),
+        new TestCaseData(new Dictionary<string, int> { { "test", 10 } }, -2, 1)
+            .SetName("NegativeMinSize"),
+        new TestCaseData(new Dictionary<string, int> { { "test", 10 } }, -2, 0)
+            .SetName("NegativeMinSizeZeroMaxSize"),
+        new TestCaseData(new Dictionary<string, int> { { "test", 10 } }, -1, -2)
+            .SetName("MinSizeMoreMaxSizeWhereAllNegative")
+    ];
+
     private static readonly IReadOnlyCollection<TestCaseData> customMinMaxSizeCases =
     [
         new TestCaseData(new Dictionary<string, int> { { "test", 10 } }, 10, 30).SetName("Min10Max30"),
